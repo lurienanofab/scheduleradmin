@@ -1,0 +1,36 @@
+﻿@using LNF.Models.Scheduler;
+
+@model IEnumerable<BuildingModel>
+@{
+    ViewBag.Title = "Buildings";
+}
+
+<div class="buildings">
+    <div style="margin-bottom: 20px;">
+        @Html.ActionLink("Add New Building", "Edit", "Buildings", new { buildingId = 0 }, new { @class = "btn btn-primary" })
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th style="text-align: center;">Active</th>
+                <th>Description</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var bldg in Model)
+            {
+                <tr class="@(bldg.BuildingIsActive ? "" : "inactive")">
+                    <td>@bldg.BuildingName</td>
+                    <td style="text-align: center;">@(bldg.BuildingIsActive ? "True" : "False")</td>
+                    <td>@bldg.BuildingDescription</td>
+                    <td style="text-align: center;">
+                        @Html.ActionLink("edit", "Edit", "Buildings", new { buildingId = bldg.BuildingID }, null)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

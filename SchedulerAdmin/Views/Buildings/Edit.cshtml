@@ -1,0 +1,81 @@
+﻿@using LNF.Models.Scheduler;
+
+@model BuildingModel
+@{
+    ViewBag.Title = "Edit Building";
+
+    List<string> errors = ViewBag.Errors;
+
+    string message = ViewBag.Message;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            @if (Model.BuildingID == 0)
+            {
+                <span>Add New Building</span>
+            }
+            else
+            {
+                <span>Edit Building: @Model.BuildingName</span>
+            }
+        </h3>
+    </div>
+    <div class="panel-body">
+        @if (errors.Count > 0)
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                Unable to save because of the following errors:
+                <ul>
+                    @foreach (var err in errors)
+                    {
+                        <li>@err</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @message
+            </div>
+        }
+
+        @using (Html.BeginForm("Edit", "Buildings", FormMethod.Post, new { @class = "form-horizontal" }))
+        {
+            <div class="form-group">
+                @Html.LabelFor(x => x.BuildingName, "Name", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(x => x.BuildingName, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.BuildingDescription, "Description", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextAreaFor(x => x.BuildingDescription, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(x => x.BuildingIsActive)
+                            <span>Active</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="submit" class="btn btn-primary" name="Command" value="Save">Save</button>
+                    <button type="submit" class="btn btn-primary" name="Command" value="SaveAndReturn">Save And Return</button>
+                    @Html.ActionLink("Return", "Index", null, new { @class = "btn btn-default" })
+                </div>
+            </div>
+        }
+    </div>
+</div>

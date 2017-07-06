@@ -1,0 +1,106 @@
+﻿@using LNF.Models.Data;
+@using LNF.Models.Scheduler;
+
+@model LabModel
+@{
+    ViewBag.Title = "Edit Lab";
+
+    List<string> errors = ViewBag.Errors;
+
+    string message = ViewBag.Message;
+
+    IList<BuildingModel> buildings = ViewBag.Buildings;
+    IList<RoomModel> rooms = ViewBag.Rooms;
+
+    var buildingListItems = buildings.Select(x => new SelectListItem() { Text = x.BuildingName, Value = x.BuildingID.ToString() }).ToArray();
+    var roomListItems = rooms.Select(x => new SelectListItem() { Text = x.DisplayName, Value = x.RoomID.ToString() }).ToArray();
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            @if (Model.LabID == 0)
+            {
+                <span>Add New Lab</span>
+            }
+            else
+            {
+                <span>Edit Lab: @Model.LabName</span>
+            }
+        </h3>
+    </div>
+    <div class="panel-body">
+        @if (errors.Count > 0)
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                Unable to save because of the following errors:
+                <ul>
+                    @foreach (var err in errors)
+                    {
+                        <li>@err</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @message
+            </div>
+        }
+
+        @using (Html.BeginForm("Edit", "Labs", FormMethod.Post, new { @class = "form-horizontal" }))
+        {
+            <div class="form-group">
+                @Html.LabelFor(x => x.LabName, "Name", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(x => x.LabName, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.LabDisplayName, "Display Name", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(x => x.LabDisplayName, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.LabDescription, "Description", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextAreaFor(x => x.LabDescription, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.BuildingID, "Building", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.DropDownListFor(x => x.BuildingID, buildingListItems, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.RoomID, "Room", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.DropDownListFor(x => x.RoomID, roomListItems, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(x => x.LabIsActive)
+                            <span>Active</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button type="submit" class="btn btn-primary" name="Command" value="Save">Save</button>
+                        <button type="submit" class="btn btn-primary" name="Command" value="SaveAndReturn">Save And Return</button>
+                        @Html.ActionLink("Return", "Index", null, new { @class = "btn btn-default" })
+                    </div>
+                </div>
+        }
+    </div>
+</div>

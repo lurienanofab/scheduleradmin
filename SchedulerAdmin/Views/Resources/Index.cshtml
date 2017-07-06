@@ -1,0 +1,40 @@
+﻿@using LNF.Models.Scheduler;
+
+@model IEnumerable<ResourceModel>
+@{
+    ViewBag.Title = "Resources";
+}
+
+<div class="resources">
+    <div style="margin-bottom: 20px;">
+        @Html.ActionLink("Add New Resource", "Edit", "Resources", new { resourceId = 0 }, new { @class = "btn btn-primary" })
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th style="text-align: center;">Active</th>
+                <th>Building</th>
+                <th>Lab</th>
+                <th>Process Tech</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var res in Model)
+            {
+                <tr class="@(res.ResourceIsActive ? "" : "inactive")">
+                    <td>@res.ResourceName</td>
+                    <td style="text-align: center;">@(res.ResourceIsActive ? "True" : "False")</td>
+                    <td>@res.BuildingName</td>
+                    <td>@res.LabDisplayName</td>
+                    <td>@res.ProcessTechName</td>
+                    <td style="text-align: center;">
+                        @Html.ActionLink("edit", "Edit", "Resources", new { resourceId = res.ResourceID }, null)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

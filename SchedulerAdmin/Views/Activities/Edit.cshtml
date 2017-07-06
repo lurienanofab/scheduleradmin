@@ -1,0 +1,264 @@
+﻿@using LNF.Models.Scheduler;
+@using LNF.Repository.Scheduler;
+
+@model ActivityModel
+@{
+    ViewBag.Title = "Edit Activity";
+
+    var accountTypeItems = new[]
+    {
+        new SelectListItem() { Text = ActivityAccountType.Reserver.ToString() },
+        new SelectListItem() { Text = ActivityAccountType.Invitee.ToString() },
+        new SelectListItem() { Text = ActivityAccountType.Both.ToString() }
+    };
+
+    var inviteeTypeItems = new[]
+    {
+        new SelectListItem() {Text = ActivityInviteeType.None.ToString() },
+        new SelectListItem() {Text = ActivityInviteeType.Optional.ToString() },
+        new SelectListItem() {Text = ActivityInviteeType.Required.ToString() },
+        new SelectListItem() {Text = ActivityInviteeType.Single.ToString() }
+    };
+
+    IEnumerable<AuthLevel> authLevels = ViewBag.AuthLevels;
+
+    List<string> errors = ViewBag.Errors;
+
+    string message = ViewBag.Message;
+}
+
+@section styles{
+    <style>
+        .auth-levels {
+            border: solid 1px #ccc;
+            border-radius: 3px;
+            padding-left: 5px;
+            padding-bottom: 5px;
+        }
+    </style>
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            @if (Model.ActivityID == 0)
+            {
+                <span>Add New Activity</span>
+            }
+            else
+            {
+                <span>Edit Activity: @Model.ActivityName</span>
+            }
+        </h3>
+    </div>
+    <div class="panel-body">
+        @if (errors.Count > 0)
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                Unable to save because of the following errors:
+                <ul>
+                    @foreach (var err in errors)
+                    {
+                        <li>@err</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @message
+            </div>
+        }
+
+        @using (Html.BeginForm("Edit", "Activites", FormMethod.Post, new { @class = "form-horizontal" }))
+        {
+            <div class="form-group">
+                @Html.LabelFor(x => x.ActivityName, "Name", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(x => x.ActivityName, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.Description, new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextAreaFor(x => x.Description, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.ListOrder, "Order", new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(x => x.ListOrder, new { @class = "form-control", style = "width: 60px;" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(x => x.Chargeable)
+                            <span>Chargeable</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(x => x.Editable)
+                            <span>Editable</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.AccountType, "Account Type", new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.DropDownListFor(x => x.AccountType, accountTypeItems, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.UserAuth, "Reserver Auth", new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    <div class="auth-levels">
+                        @Html.HiddenFor(x => x.UserAuth)
+                        @foreach (var auth in authLevels)
+                        {
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="@auth.AuthLevelValue" /> @auth.AuthLevelName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.InviteeType, "Invitee Type", new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.DropDownListFor(x => x.InviteeType, inviteeTypeItems, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.InviteeAuth, "Invitee Auth", new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    <div class="auth-levels">
+                        @Html.HiddenFor(x => x.InviteeAuth)
+                        @foreach (var auth in authLevels)
+                        {
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="@auth.AuthLevelValue" /> @auth.AuthLevelName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.StartEndAuth, "Start/End Auth", new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    <div class="auth-levels">
+                        @Html.HiddenFor(x => x.StartEndAuth)
+                        @foreach (var auth in authLevels)
+                        {
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="@auth.AuthLevelValue" /> @auth.AuthLevelName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.NoReservFenceAuth, "No Fence Auth", new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    <div class="auth-levels">
+                        @Html.HiddenFor(x => x.NoReservFenceAuth)
+                        @foreach (var auth in authLevels)
+                        {
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="@auth.AuthLevelValue" /> @auth.AuthLevelName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.NoMaxSchedAuth, "No Max Hours Auth", new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    <div class="auth-levels">
+                        @Html.HiddenFor(x => x.NoMaxSchedAuth)
+                        @foreach (var auth in authLevels)
+                        {
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="@auth.AuthLevelValue" /> @auth.AuthLevelName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(x => x.IsFacilityDownTime)
+                            <span>Facility Down Time</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBoxFor(x => x.IsActive)
+                            <span>Active</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="submit" class="btn btn-primary" name="Command" value="Save">Save</button>
+                    <button type="submit" class="btn btn-primary" name="Command" value="SaveAndReturn">Save And Return</button>
+                    @Html.ActionLink("Return", "Index", null, new { @class = "btn btn-default" })
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(".auth-levels").each(function () {
+            var $authLevels = $(this);
+
+            var current = parseInt($("input[type='hidden']", $authLevels).val());
+
+            $("input[type='checkbox']", $authLevels).each(function () {
+                var chk = $(this);
+                var val = parseInt(chk.val());
+                chk.prop("checked", (val & current) > 0);
+            });
+
+            $authLevels.on("change", "input[type='checkbox']", function (e) {
+                var auth = 0;
+                $("input[type='checkbox']:checked", $authLevels).each(function () {
+                    var chk = $(this);
+                    var val = parseInt(chk.val());
+                    auth |= val;
+                });
+                $("input[type='hidden']", $authLevels).val(auth)
+            });
+        });
+    </script>
+}

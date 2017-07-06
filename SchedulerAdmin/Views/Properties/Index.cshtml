@@ -1,0 +1,189 @@
+﻿@using SchedulerAdmin.Models;
+
+@model PropertiesModel
+@{
+    ViewBag.Title = "Propeties";
+
+    IEnumerable<SelectListItem> clients = ViewBag.Clients;
+    IEnumerable<SelectListItem> accounts = ViewBag.Accounts;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Scheduler Properties</h3>
+    </div>
+    <div class="panel-body">
+        @using (Html.BeginForm("Index", "Properties", null, FormMethod.Post, new { @class = "form-horizontal" }))
+        {
+            <div class="form-group">
+                @Html.LabelFor(x => x.LateChargePenaltyMultiplier, "Late Charge Penalty Multiplier", new { @class = "col-md-4 control-label" })
+                <div class="col-md-1">
+                    @Html.TextBoxFor(x => x.LateChargePenaltyMultiplier, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.AuthorizationExpirationWarning, "Authorization Expiration Warning", new { @class = "col-md-4 control-label" })
+                <div class="col-md-1">
+                    @Html.TextBoxFor(x => x.AuthorizationExpirationWarning, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.ResourceIpPrefix, "Resource IP Prefix", new { @class = "col-md-4 control-label" })
+                <div class="col-md-2">
+                    @Html.TextBoxFor(x => x.ResourceIpPrefix, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.SchedulerAdministratorClientID, "Scheduler Administrator", new { @class = "col-md-4 control-label" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(x => x.SchedulerAdministratorClientID, clients, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.GeneralLabAccountID, "General Lab Account", new { @class = "col-md-4 control-label" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(x => x.GeneralLabAccountID, accounts, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-4 col-md-8">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="panel panel-default kiosks">
+    <div class="panel-heading">
+        <h3 class="panel-title">Kiosks</h3>
+    </div>
+    <div class="panel-body">
+
+    </div>
+</div>
+
+@section scripts{
+    <script src="//ssel-apps.eecs.umich.edu/static/lib/handlebars/handlebars.js"></script>
+
+    <script id="kiosks-template" type="text/x-handlebars-template">
+        <table class="table table-striped kiosks-table">
+            <thead>
+                <tr>
+                    <th>Kiosk Name</th>
+                    <th style="width: 200px;">Kiosk IP</th>
+                    <th style="width: 100px;">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each kiosks}}
+                <tr>
+                    <td style="vertical-align: middle;" data-editable="true" data-orig-value="{{KioskName}}" data-property="KioskName">{{KioskName}}</td>
+                    <td style="vertical-align: middle;" data-editable="true" data-orig-value="{{KioskIP}}" data-property="KioskIP">{{KioskIP}}</td>
+                    <td style="vertical-align: middle; text-align: center;"><a href="#" data-command="delete" data-id="{{KioskID}}">delete</a></td>
+                </tr>
+                {{/each}}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td data-property="KioskName">
+                        <input type="text" class="form-control add-kiosk-name" />
+                    </td>
+                    <td data-property="KioskIP">
+                        <input type="text" class="form-control add-kiosk-ip" />
+                    </td>
+                    <td style="text-align: center;">
+                        <button type="button" class="btn btn-default" data-command="add">ADD</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </script>
+
+    <script src="~/Scripts/kiosk.js"></script>
+
+    <script>
+        (function ($) {
+            $.fn.editable = function (options) {
+                return this.each(function () {
+                    var $this = $(this);
+
+                    var opts = $.extend({}, {onDelete: null}, options, $this.data());
+
+                    var editCell = null;
+
+                    var cancelEdit = function () {
+                        $("input[type='text']", editCell).remove();
+                        editCell.text(editCell.data("orig-value"));
+                        editCell.data("active", false);
+                        editCell = null;
+                    }
+
+                    $this.on("click", "tbody > tr > td[data-editable='true']", function (e) {
+                        var cell = $(this);
+
+                        if (cell.data("active")) return;
+
+                        if (editCell) cancelEdit();
+
+                        editCell = cell;
+                        var text = editCell.text();
+                        editCell.data("orig-value", text);
+                        editCell.data("active", true);
+                        editCell.html($("<input/>", { "type": "text", "class": "form-control" }).val(text).on("keydown", function (e) {
+                            var input = $(this);
+                            if (e.keyCode == 13) {
+                                e.preventDefault();
+                                editCell.data("orig-value", input.val());
+                                cancelEdit();
+                            } else if (e.keyCode == 27) {
+                                cancelEdit();
+                            }
+                        }));
+
+                        $("input[type='text']", editCell).focus();
+                    }).on("click", "[data-command='delete']", function (e) {
+                        e.preventDefault();
+                        var link = $(this);
+                        var id = link.data("id");
+                        var row = link.closest("tr");
+
+                        if (typeof opts.onDelete == "function"){
+                            opts.onDelete.call($this, id).done(function (remove) {
+                                if (remove)row.remove();
+                            });
+                        } else {
+                            row.remove();
+                        }
+                    }).on("click", "[data-command='add']", function (e) {
+
+                    });
+                });
+            }
+        }(jQuery));
+    </script>
+
+    <script>
+        $(".kiosks").kiosk({
+            "onInit": function () {
+                $(".kiosks-table", this).editable({
+                    "onAdd": function(model){
+
+                    },
+                    "onDelete": function (id) {
+                        var def = $.Deferred();
+                        
+                        $.ajax({
+                            "url": '@Url.Content("~/api/kiosk/")' + id,
+                            "method": "DELETE"
+                        }).done(function (data) {
+                            def.resolve(data);
+                        }).fail(def.reject);
+
+                        return def.promise();
+                    }
+                });
+            }
+        });
+    </script>
+}

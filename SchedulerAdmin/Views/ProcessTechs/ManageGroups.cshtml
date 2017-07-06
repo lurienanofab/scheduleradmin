@@ -1,0 +1,103 @@
+﻿@using LNF.Models.Scheduler;
+
+@model IEnumerable<ProcessTechGroupModel>
+@{
+    ViewBag.Title = "Process Tech Groups";
+
+    int groupId = ((int?)ViewBag.GroupID).GetValueOrDefault(0);
+}
+
+<div style="margin-bottom: 20px;">
+    @Html.ActionLink("Return to Process Techs", "Index", "ProcessTechs", null, new { @class = "btn btn-default" })
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        @using (Html.BeginForm("ManageGroupsSave", "ProcessTechs", new { groupId }, FormMethod.Post, null))
+        {
+            <input type="hidden" name="command" id="command" />
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th>Name</th>
+                        <th style="width: 100px;">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td style="vertical-align: middle;">
+                            <div class="add-group-name">
+                                <input type="text" name="add_group_name" id="add_group_name" class="form-control" />
+                            </div>
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            <a href="#" class="add-group">add</a>
+                        </td>
+                    </tr>
+                    @foreach (var grp in Model)
+                    {
+                        <tr>
+                            <td style="vertical-align: middle;">@grp.ProcessTechGroupID</td>
+                            @if (grp.ProcessTechGroupID == groupId)
+                            {
+                                <td style="vertical-align: middle;">
+                                    <div class="modify-group-name">
+                                        <input type="text" name="modify_group_name" id="modify_group_name" class="form-control" value="@grp.GroupName" />
+                                    </div>
+                                </td>
+                                <td style="text-align: center; vertical-align: middle;"><a href="#" class="save-group">save</a></td>
+                            }
+                            else
+                            {
+                                <td style="vertical-align: middle;">@grp.GroupName</td>
+                                <td style="text-align: center; vertical-align: middle;">@Html.ActionLink("edit", "ManageGroups", "ProcessTechs", new { groupId = grp.ProcessTechGroupID }, null)</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(".add-group").on("click", function (e) {
+            e.preventDefault();
+            $(".add-group-name").removeClass("has-error");
+            if ($(".add-group-name input[type='text']").val() === "") {
+                $(".add-group-name").addClass("has-error");
+                $(".add-group-name input[type='text']").prop("placeholder", "Required");
+            } else {
+                localStorage.removeItem("lastScrollTop");
+                $("#command").val("add");
+                $("form").submit();
+            }
+        });
+
+        $(".save-group").on("click", function (e) {
+            e.preventDefault();
+            $(".modify-group-name").removeClass("has-error");
+            if ($(".modify-group-name input[type='text']").val() === "") {
+                $(".modify-group-name").addClass("has-error");
+                $(".modify-group-name input[type='text']").prop("placeholder", "Required");
+            } else {
+                localStorage.removeItem("lastScrollTop");
+                $("#command").val("modify");
+                $("form").submit();
+            }
+        });
+
+        $(document).on("scroll", function (e) {
+            localStorage.lastScrollTop = $(this).scrollTop();
+        });
+
+        var lastScrollTop = parseInt(localStorage.lastScrollTop);
+
+        if (!isNaN(lastScrollTop)) {
+            $(document).scrollTop(lastScrollTop);
+        }
+    </script>
+}

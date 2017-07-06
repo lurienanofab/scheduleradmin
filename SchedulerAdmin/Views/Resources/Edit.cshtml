@@ -1,0 +1,388 @@
+﻿@model int?
+@{
+    ViewBag.Title = "Edit Resource";
+
+    int resourceId = Model.GetValueOrDefault(0);
+
+    List<string> errors = ViewBag.Errors;
+
+    string message = ViewBag.Message;
+
+    string iconUrl = ViewBag.IconUrl;
+
+    string uploadImageError = ViewBag.UploadImageError;
+}
+
+@section styles{
+    <link rel="stylesheet" href="//ssel-apps.eecs.umich.edu/static/scripts/bootstrap/bootstrap-file/bootstrap-file.css" />
+}
+
+<em class="text-muted loading">Loading...</em>
+
+<div class="panel panel-default resource" style="display: none;" data-api-url="@Url.Content("~/api/")" data-resource-id="@resourceId" data-return-to="@Url.Action("Index", "Resources")">
+    <div class="panel-heading">
+        <h3 class="panel-title"></h3>
+    </div>
+    <div class="panel-body">
+        @if (errors.Count > 0)
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                Unable to save because of the following errors:
+                <ul>
+                    @foreach (var err in errors)
+                    {
+                        <li>@err</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @message
+            </div>
+        }
+
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="control-label col-md-2">Resource ID</label>
+                <div class="col-md-1">
+                    @if (resourceId == 0)
+                    {
+                        <input type="text" class="form-control resource-id" maxlength="6" />
+                    }
+                    else
+                    {
+                        <p class="form-control-static">@resourceId</p>
+                        <input type="hidden" class="resource-id" value="@resourceId" />
+                    }
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Name</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control resource-name" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Description</label>
+                <div class="col-md-4">
+                    <textarea class="form-control resource-description" rows="10" cols="10"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Process Tech</label>
+                <div class="col-md-4">
+                    <select class="form-control process-tech"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Auth Duration</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <input type="text" class="form-control auth-duration" />
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">mos</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="rolling-period" />
+                            Rolling Period
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Reservation Fence</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <input type="text" class="form-control reservation-fence" />
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">hours</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Granularity</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <select class="form-control granularity">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="60">60</option>
+                            <option value="120">120</option>
+                            <option value="180">180</option>
+                            <option value="240">240</option>
+                            <option value="1440">1440</option>
+                        </select>
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">min</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">24 Hour Offset</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <select class="form-control offset"></select>
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">hours</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Min Reservation Time</label>
+                <div class="col-md-2">
+                    <select class="form-control min-reservation"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Max Reservation Time</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <select class="form-control max-reservation"></select>
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">hours</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Max Schedulable Hours</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <input type="text" class="form-control max-schedulable" />
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">hours</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Minimum Cancel Time</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <input type="text" class="form-control min-cancel-time" />
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">min</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Grace Period</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <select class="form-control grace-period-hour"></select>
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">hr</div>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="input-group" style="width: 100%;">
+                        <select class="form-control grace-period-minute"></select>
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">min</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Auto End</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <input type="text" class="form-control auto-end" />
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">min</div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <p class="form-control-static">(set to -1 to disable auto-end action for this tool)</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Unload Time</label>
+                <div class="col-md-2">
+                    <div class="input-group" style="width: 100%;">
+                        <input type="text" class="form-control unload-time" />
+                        <div class="input-group-addon" style="width: 60px; text-align: left;">min</div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <p class="form-control-static">(set to -1 to disable unload action for this tool)</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Helpdesk Email</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control helpdesk-email" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">Wiki Page Url</label>
+                <div class="col-md-4">
+                    <input type="text" class="form-control wiki-page-url" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="is-schedulable" />
+                            Is Schedulable
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="is-active" />
+                            Active
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="button" class="btn btn-primary" data-command="save">Save</button>
+                    <button type="button" class="btn btn-primary" data-command="SaveAndReturn">Save And Return</button>
+                    @Html.ActionLink("Return", "Index", null, new { @class = "btn btn-default" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default image" style="display: none;">
+    <div class="panel-heading">
+        <h3 class="panel-title">Resource Image</h3>
+    </div>
+    <div class="panel-body">
+        @if (resourceId > 0)
+        {
+            using (Html.BeginForm("UploadImage", "Resources", new { resourceId }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+            {
+                if (!string.IsNullOrEmpty(iconUrl))
+                {
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Current</label>
+                        <div class="col-md-10">
+                            <img src="@iconUrl" alt="icon" />
+                        </div>
+                    </div>
+                }
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Image</label>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <span class="btn btn-default btn-file">
+                                    Choose File
+                                    <input name="ImageFile" id="ImageFile" type="file" class="bootstrap-file" />
+                                </span>
+                            </span>
+                            <input type="text" class="form-control" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                        @if (!string.IsNullOrEmpty(iconUrl))
+                        {
+                            @Html.ActionLink("Delete ", "DeleteImage", new { resourceId }, new { @class = "btn btn-default" })
+                        }
+                    </div>
+                </div>
+                if (!string.IsNullOrEmpty(uploadImageError))
+                {
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-4">
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                @uploadImageError
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <em class="text-muted">The resource must be saved before an image can be added.</em>
+        }
+    </div>
+</div>
+
+@section scripts{
+    <script src="//ssel-apps.eecs.umich.edu/static/scripts/bootstrap/bootstrap-file/bootstrap-file.js"></script>
+    <script src="~/Scripts/resource.js"></script>
+
+    <script>
+        (function ($) {
+            $.fn.maintainScrollPosition = function (options) {
+                var args = arguments;
+                return this.each(function () {
+                    var $this = $(this);
+
+                    var opts = $.extend({}, { "id": "default", "key": "maintainScrollPosition" }, options, $this.data());
+
+                    function getSetting() {
+                        var setting = localStorage.getItem(opts.key);
+
+                        if (!setting)
+                            setting = {};
+                        else
+                            setting = $.parseJSON(setting);
+
+                        if (!setting[location.hostname])
+                            setting[location.hostname] = {};
+
+                        if (!setting[location.hostname][location.pathname])
+                            setting[location.hostname][location.pathname] = {};
+
+                        if (!setting[location.hostname][location.pathname][opts.id])
+                            setting[location.hostname][location.pathname][opts.id] = null;
+
+                        return setting;
+                    }
+
+                    function setValue(val) {
+                        var setting = getSetting();
+                        setting[location.hostname][location.pathname][opts.id] = val;
+                        localStorage.setItem(opts.key, JSON.stringify(setting));
+                    }
+
+                    function getValue() {
+                        var setting = getSetting();
+                        return parseInt(setting[location.hostname][location.pathname][opts.id]);
+                    }
+
+                    $this.off("scroll", "**").off("reset");
+
+                    $this.on("scroll", function (e) {
+                        setValue($this.scrollTop());
+                    }).on("reset", function (e) {
+                        setValue(0);
+                        $this.scrollTop(0);
+                    });
+
+                    var val = getValue();
+
+                    if (!isNaN(val)) {
+                        $this.scrollTop(val);
+                    }
+                });
+            }
+        }(jQuery));
+    </script>
+
+    <script>
+        var w = null;
+        $(".resource").resource({
+            "onInit": function () {
+                $(".loading").hide();
+                $(".image").show();
+                w = $(window).maintainScrollPosition();
+            },
+            "onSave": function () {
+                w.trigger("reset");
+            }
+        });
+    </script>
+}

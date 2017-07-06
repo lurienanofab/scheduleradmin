@@ -1,0 +1,42 @@
+﻿@using LNF.Models.Scheduler;
+
+@model IEnumerable<ActivityModel>
+@{
+    ViewBag.Title = "Activities";
+}
+
+<div class="activities">
+    <div style="margin-bottom: 20px;">
+        @Html.ActionLink("Add New Activity", "Edit", "Activities", new { activityId = 0 }, new { @class = "btn btn-primary" })
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th style="text-align: center;">Active</th>
+                <th style="text-align: center;">Chargeable</th>
+                <th style="text-align: center;">Editable</th>
+                <th>Account Type</th>
+                <th>Invitee Type</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var act in Model)
+            {
+                <tr class="@(act.IsActive ? "" : "inactive")">
+                    <td>@act.ActivityName</td>
+                    <td style="text-align: center;">@(act.IsActive ? "True" : "False")</td>
+                    <td style="text-align: center;">@(act.Chargeable ? "True" : "False")</td>
+                    <td style="text-align: center;">@(act.Editable ? "True" : "False")</td>
+                    <td>@act.AccountType</td>
+                    <td>@act.InviteeType</td>
+                    <td style="text-align: center;">
+                        @Html.ActionLink("edit", "Edit", "Activities", new { activityId = act.ActivityID }, null)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
